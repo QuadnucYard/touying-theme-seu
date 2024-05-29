@@ -2,6 +2,59 @@
 // Originally contributed by Pol Dellaiera - https://github.com/drupol
 
 #import "@preview/touying:0.4.2": *
+#import "@preview/cuti:0.2.1": show-cn-fakebold
+
+#let seu-nav-bar(self: none) = states.touying-progress-with-sections(dict => {
+  let (current-sections, final-sections) = dict
+  current-sections = current-sections.filter(section => section.loc != none).map(section => (
+    section,
+    section.children,
+  )).flatten().filter(item => item.kind == "section")
+  final-sections = final-sections.filter(section => section.loc != none).map(section => (
+    section,
+    section.children,
+  )).flatten().filter(item => item.kind == "section")
+  let current-index = current-sections.len() - 1
+
+  set text(size: 0.5em)
+  for (i, section) in final-sections.enumerate() {
+    set text(fill: if i != current-index {
+      gray
+    } else {
+      white
+    })
+    box(inset: 0.5em)[#link(section.loc, utils.section-short-title(section))<touying-link>]
+  }
+})
+
+#let seu-outline(self: none) = states.touying-progress-with-sections(dict => {
+  let (current-sections, final-sections) = dict
+  current-sections = current-sections.filter(section => section.loc != none).map(section => (
+    section,
+    section.children,
+  )).flatten().filter(item => item.kind == "section")
+  final-sections = final-sections.filter(section => section.loc != none).map(section => (
+    section,
+    section.children,
+  )).flatten().filter(item => item.kind == "section")
+  let current-index = current-sections.len() - 1
+
+  // set text(size: 0.5em)
+  for (i, section) in final-sections.enumerate() {
+    if i == 0 {
+      continue
+    }
+    set text(fill: if current-index == 0 or i == current-index {
+      self.colors.primary
+    } else {
+      self.colors.primary-lighter
+    })
+    block(
+      spacing: 1.5em,
+      [#link(section.loc, utils.section-short-title(section))<touying-link>],
+    )
+  }
+})
 
 #let slide(
   self: none,
@@ -13,19 +66,19 @@
   ..args,
 ) = {
   if title != auto {
-    self.uni-title = title
+    self.seu-title = title
   }
   if subtitle != auto {
-    self.uni-subtitle = subtitle
+    self.seu-subtitle = subtitle
   }
   if header != auto {
-    self.uni-header = header
+    self.seu-header = header
   }
   if footer != auto {
-    self.uni-footer = footer
+    self.seu-footer = footer
   }
   if display-current-section != auto {
-    self.uni-display-current-section = display-current-section
+    self.seu-display-current-section = display-current-section
   }
   (self.methods.touying-slide)(
     ..args.named(),
@@ -33,14 +86,14 @@
     title: title,
     setting: body => {
       show: args.named().at("setting", default: body => body)
-      body
+      align(horizon, body)
     },
     ..args.pos(),
   )
 }
 
 #let title-slide(self: none, ..args) = {
-  self = utils.empty-page(self)
+  // self = utils.empty-page(self)
   let info = self.info + args.named()
   info.authors = {
     let authors = if "authors" in info {
@@ -58,140 +111,78 @@
     if info.logo != none {
       align(right, info.logo)
     }
-    align(
-      center + horizon,
+    show: align.with(center + horizon)
+    block(
+      fill: self.colors.primary,
+      inset: 1.5em,
+      radius: 0.5em,
+      breakable: false,
       {
-        block(
-          inset: 0em,
-          breakable: false,
-          {
-            text(size: 2em, fill: self.colors.primary, strong(info.title))
-            if info.subtitle != none {
-              parbreak()
-              text(size: 1.2em, fill: self.colors.primary, info.subtitle)
-            }
-          },
-        )
-        set text(size: .8em)
-        grid(
-          columns: (1fr,) * calc.min(info.authors.len(), 3),
-          column-gutter: 1em,
-          row-gutter: 1em,
-          ..info.authors.map(author => text(fill: black, author)),
-        )
-        v(1em)
-        if info.institution != none {
+        text(size: 1.2em, fill: white, weight: "bold", info.title)
+        if info.subtitle != none {
           parbreak()
-          text(size: .9em, info.institution)
-        }
-        if info.date != none {
-          parbreak()
-          text(size: .8em, utils.info-date(self))
+          text(size: 1.0em, fill: white, weight: "bold", info.subtitle)
         }
       },
     )
+    // authors
+    grid(
+      columns: (1fr,) * calc.min(info.authors.len(), 3),
+      column-gutter: 1em,
+      row-gutter: 1em,
+      ..info.authors.map(author => text(fill: black, author)),
+    )
+    v(0.5em)
+    // institution
+    if info.institution != none {
+      parbreak()
+      text(size: 0.7em, info.institution)
+    }
+    // date
+    if info.date != none {
+      parbreak()
+      text(size: 1.0em, utils.info-date(self))
+    }
   }
   (self.methods.touying-slide)(self: self, repeat: none, content)
 }
 
-#let new-section-slide(self: none, short-title: auto, title) = {
-  self = utils.empty-page(self)
-  let content(self) = {
+#let outline-slide(self: none) = {
+  self.seu-title = [目录]
+  let content = {
     set align(horizon)
-    show: pad.with(20%)
-    set text(size: 1.5em, fill: self.colors.primary, weight: "bold")
-    states.current-section-with-numbering(self)
-    v(-.5em)
-    block(height: 2pt, width: 100%, spacing: 0pt, utils.call-or-display(self, self.uni-progress-bar))
+    set text(weight: "bold")
+    hide([-])
+    seu-outline(self: self)
+  }
+  (self.methods.touying-slide)(self: self, repeat: none, section: (title: [目录]), content)
+}
+
+#let new-section-slide(self: none, short-title: auto, title) = {
+  self.seu-title = [目录]
+  let content = {
+    set align(horizon)
+    set text(weight: "bold")
+    hide([-]) // 如果没这个会导致显示出问题
+    seu-outline(self: self)
   }
   (self.methods.touying-slide)(self: self, repeat: none, section: (title: title, short-title: short-title), content)
 }
 
-#let focus-slide(self: none, background-color: none, background-img: none, body) = {
-  let background-color = if background-img == none and background-color == none {
-    rgb(self.colors.primary)
-  } else {
-    background-color
-  }
-  self = utils.empty-page(self)
-  self.page-args += (
-    fill: self.colors.primary-dark,
-    margin: 1em,
-    ..(
-      if background-color != none {
-        (fill: background-color)
-      }
-    ),
-    ..(
-      if background-img != none {
-        (
-          background: {
-            set image(fit: "stretch", width: 100%, height: 100%)
-            background-img
-          },
-        )
-      }
-    ),
-  )
-  set text(fill: white, weight: "bold", size: 2em)
-  (self.methods.touying-slide)(self: self, repeat: none, align(horizon, body))
-}
-
-#let matrix-slide(self: none, columns: none, rows: none, ..bodies) = {
-  self = utils.empty-page(self)
-  (self.methods.touying-slide)(
-    self: self,
-    composer: (..bodies) => {
-      let bodies = bodies.pos()
-      let columns = if type(columns) == int {
-        (1fr,) * columns
-      } else if columns == none {
-        (1fr,) * bodies.len()
-      } else {
-        columns
-      }
-      let num-cols = columns.len()
-      let rows = if type(rows) == int {
-        (1fr,) * rows
-      } else if rows == none {
-        let quotient = calc.quo(bodies.len(), num-cols)
-        let correction = if calc.rem(bodies.len(), num-cols) == 0 {
-          0
-        } else {
-          1
-        }
-        (1fr,) * (quotient + correction)
-      } else {
-        rows
-      }
-      let num-rows = rows.len()
-      if num-rows * num-cols < bodies.len() {
-        panic("number of rows (" + str(num-rows) + ") * number of columns (" + str(num-cols) + ") must at least be number of content arguments (" + str(
-          bodies.len(),
-        ) + ")")
-      }
-      let cart-idx(i) = (calc.quo(i, num-cols), calc.rem(i, num-cols))
-      let color-body(idx-body) = {
-        let (idx, body) = idx-body
-        let (row, col) = cart-idx(idx)
-        let color = if calc.even(row + col) {
-          white
-        } else {
-          silver
-        }
-        set align(center + horizon)
-        rect(inset: .5em, width: 100%, height: 100%, fill: color, body)
-      }
-      let content = grid(
-        columns: columns,
-        rows: rows,
-        gutter: 0pt,
-        ..bodies.enumerate().map(color-body),
+#let ending-slide(self: none, title: none, body) = {
+  let content = {
+    set align(center + horizon)
+    if title != none {
+      block(
+        fill: self.colors.secondary,
+        inset: (top: 0.7em, bottom: 0.7em, left: 3em, right: 3em),
+        radius: 0.5em,
+        text(size: 1.5em, fill: white, title),
       )
-      content
-    },
-    ..bodies,
-  )
+    }
+    body
+  }
+  (self.methods.touying-slide)(self: self, repeat: none, content)
 }
 
 #let slides(self: none, title-slide: true, slide-level: 1, ..args) = {
@@ -206,32 +197,45 @@
   aspect-ratio: "16-9",
   progress-bar: true,
   display-current-section: true,
-  footer-columns: (25%, 1fr, 25%),
+  footer-columns: (25%, 25%, 1fr, 5em),
   footer-a: self => self.info.author,
-  footer-b: self => if self.info.short-title == auto {
+  footer-b: self => utils.info-date(self),
+  footer-c: self => if self.info.short-title == auto {
     self.info.title
   } else {
     self.info.short-title
   },
-  footer-c: self => {
-    h(1fr)
-    utils.info-date(self)
-    h(1fr)
+  footer-d: self => {
     states.slide-counter.display() + " / " + states.last-slide-number
-    h(1fr)
   },
   ..args,
 ) = {
   // color theme
   self = (self.methods.colors)(
     self: self,
-    primary: rgb("#04364A"),
-    secondary: rgb("#176B87"),
-    tertiary: rgb("#448C95"),
+    primary: rgb("#517a34"),
+    primary-dark: rgb("#3d5c27"),
+    primary-darker: rgb("#3d5c27").darken(40%),
+    primary-darkest: rgb("#000000"),
+    primary-lighter: rgb("#dce4d6"),
+    primary-lightest: rgb("#ecefe9"),
+    secondary: rgb("#006600"),
   )
+  // marker
+  self.seu-knob-marker = box(
+    width: 0.5em,
+    place(
+      dy: 0.1em,
+      circle(
+        fill: gradient.radial(self.colors.primary-lightest, self.colors.primary-darker, focal-center: (30%, 30%)),
+        radius: 0.25em,
+      ),
+    ),
+  )
+
   // save the variables for later use
-  self.uni-enable-progress-bar = progress-bar
-  self.uni-progress-bar = self => states.touying-progress(ratio => {
+  self.seu-enable-progress-bar = progress-bar
+  self.seu-progress-bar = self => states.touying-progress(ratio => {
     grid(
       columns: (ratio * 100%, 1fr),
       rows: 2pt,
@@ -239,10 +243,20 @@
       components.cell(fill: self.colors.tertiary),
     )
   })
-  self.uni-display-current-section = display-current-section
-  self.uni-title = none
-  self.uni-subtitle = none
-  self.uni-footer = self => {
+  self.seu-navigation = self => {
+    grid(
+      align: center+  horizon,
+      columns: (1fr, auto, auto),
+      rows: 1.8em,
+      components.cell(fill: self.colors.primary-darkest, seu-nav-bar(self: self)),
+      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_title.png", height: 100%)),
+      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_logo.png", height:  100%)), // !TODO - inset
+    )
+  }
+  self.seu-display-current-section = display-current-section
+  self.seu-title = none
+  self.seu-subtitle = none
+  self.seu-footer = self => {
     let cell(fill: none, it) = rect(
       width: 100%,
       height: 100%,
@@ -256,31 +270,19 @@
     grid(
       columns: footer-columns,
       rows: (1.5em, auto),
-      cell(fill: self.colors.primary, utils.call-or-display(self, footer-a)),
-      cell(fill: self.colors.secondary, utils.call-or-display(self, footer-b)),
-      cell(fill: self.colors.tertiary, utils.call-or-display(self, footer-c)),
+      cell(fill: self.colors.primary-darkest, utils.call-or-display(self, footer-a)),
+      cell(fill: self.colors.primary-darkest, utils.call-or-display(self, footer-b)),
+      cell(fill: self.colors.primary, utils.call-or-display(self, footer-c)),
+      cell(fill: self.colors.primary, utils.call-or-display(self, footer-d)),
     )
   }
-  self.uni-header = self => {
-    if self.uni-title != none {
+  self.seu-header = self => {
+    if self.seu-title != none {
       block(
-        inset: (x: .5em),
-        grid(
-          columns: 1,
-          gutter: .3em,
-          grid(
-            columns: (auto, 1fr, auto),
-            align(top + left, text(fill: self.colors.primary, weight: "bold", size: 1.2em, self.uni-title)),
-            [],
-            if self.uni-display-current-section {
-              align(
-                top + right,
-                text(fill: self.colors.primary.lighten(65%), states.current-section-with-numbering(self)),
-              )
-            },
-          ),
-          text(fill: self.colors.primary.lighten(65%), size: .8em, self.uni-subtitle),
-        ),
+        width: 100%,
+        height: 1.8em,
+        fill: gradient.linear(self.colors.primary, self.colors.primary-darkest),
+        place(left + horizon, text(fill: white, weight: "bold", size: 1.3em, self.seu-title), dx: 1.5em),
       )
     }
   }
@@ -289,17 +291,14 @@
     set align(top)
     grid(
       rows: (auto, auto),
-      row-gutter: 3mm,
-      if self.uni-enable-progress-bar {
-        utils.call-or-display(self, self.uni-progress-bar)
-      },
-      utils.call-or-display(self, self.uni-header),
+      utils.call-or-display(self, self.seu-navigation),
+      utils.call-or-display(self, self.seu-header),
     )
   }
   let footer(self) = {
-    set text(size: .4em)
+    set text(size: .5em)
     set align(center + bottom)
-    utils.call-or-display(self, self.uni-footer)
+    utils.call-or-display(self, self.seu-footer)
   }
 
   self.page-args += (
@@ -308,25 +307,67 @@
     footer: footer,
     header-ascent: 0em,
     footer-descent: 0em,
-    margin: (top: 2.5em, bottom: 1.25em, x: 2em),
+    margin: (top: 4em, bottom: 1.25em, x: 2.5em),
+    background: image("assets/seu_background.png", fit: "stretch", width: 100%, height: 100%),
   )
   // register methods
   self.methods.slide = slide
   self.methods.title-slide = title-slide
+  self.methods.outline-slide = outline-slide
   self.methods.new-section-slide = new-section-slide
   self.methods.touying-new-section-slide = new-section-slide
-  self.methods.focus-slide = focus-slide
-  self.methods.matrix-slide = matrix-slide
+  self.methods.ending-slide = ending-slide
   self.methods.slides = slides
   self.methods.touying-outline = (self: none, enum-args: (:), ..args) => {
     states.touying-outline(self: self, enum-args: (tight: false) + enum-args, ..args)
   }
   self.methods.alert = (self: none, it) => text(fill: self.colors.primary, it)
+
+  self.methods.tblock = (self: none, title: none, it) => {
+    grid(
+      columns: 1,
+      row-gutter: 0pt,
+      block(
+      fill: self.colors.primary-dark,
+      width: 100%,
+      // height: 1.5em,
+      radius: (top: 6pt),
+      inset: (top: 0.4em, bottom: 0.3em, left: 0.5em, right: 0.5em),
+      text(fill: white, weight: "bold", title),
+    ),
+      rect(
+        fill: gradient.linear(self.colors.primary-dark, self.colors.primary-lightest, angle: 90deg),
+        width: 100%,
+        height: 4pt,
+      ),
+      block(
+        fill: self.colors.primary-lightest,
+        width: 100%,
+        radius: (bottom: 6pt),
+        inset: (top: 0.4em, bottom: 0.5em, left: 0.5em, right: 0.5em),
+        it,
+      ),
+    )
+  }
+
   self.methods.init = (self: none, body) => {
-    set text(size: 25pt)
+    set text(size: 22pt, font: ("Helvetica", "SimHei"))
     set heading(outlined: false)
+    set list(marker: self.seu-knob-marker)
+
+    // show strong: set text(fill: black, weight: "bold")
+    show strong: it => text(fill: black, weight: "bold", it)
+
+    show figure.caption: set text(size: 0.6em)
+
     show footnote.entry: set text(size: .6em)
+    show: show-cn-fakebold
+    // show: zh-cn
+    set text(lang: "zh")
+    show figure.where(kind: table): set figure.caption(position: top)
+
     body
   }
+
   self
 }
