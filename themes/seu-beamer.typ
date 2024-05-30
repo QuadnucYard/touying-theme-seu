@@ -47,7 +47,7 @@
     set text(fill: if current-index == 0 or i == current-index {
       self.colors.primary
     } else {
-      self.colors.primary-lighter
+      self.colors.primary.lighten(80%)
     })
     block(
       spacing: 1.5em,
@@ -118,10 +118,10 @@
       radius: 0.5em,
       breakable: false,
       {
-        text(size: 1.2em, fill: white, weight: "bold", info.title)
+        text(size: 1.2em, fill: self.colors.neutral-lightest, weight: "bold", info.title)
         if info.subtitle != none {
           parbreak()
-          text(size: 1.0em, fill: white, weight: "bold", info.subtitle)
+          text(size: 1.0em, fill: self.colors.neutral-lightest, weight: "bold", info.subtitle)
         }
       },
     )
@@ -174,10 +174,10 @@
     set align(center + horizon)
     if title != none {
       block(
-        fill: self.colors.secondary,
+        fill: self.colors.tertiary,
         inset: (top: 0.7em, bottom: 0.7em, left: 3em, right: 3em),
         radius: 0.5em,
-        text(size: 1.5em, fill: white, title),
+        text(size: 1.5em, fill: self.colors.neutral-lightest, title),
       )
     }
     body
@@ -213,13 +213,12 @@
   // color theme
   self = (self.methods.colors)(
     self: self,
-    primary: rgb("#517a34"),
+    primary: rgb("#4d7c2b"),
     primary-dark: rgb("#3d5c27"),
-    primary-darker: rgb("#3d5c27").darken(40%),
-    primary-darkest: rgb("#000000"),
-    primary-lighter: rgb("#dce4d6"),
-    primary-lightest: rgb("#ecefe9"),
-    secondary: rgb("#006600"),
+    secondary: rgb("#fdd100"),
+    tertiary: rgb("#006600"),
+    neutral-lightest: rgb("#ffffff"),
+    neutral-darkest: rgb("#000000"),
   )
   // marker
   self.seu-knob-marker = box(
@@ -227,7 +226,7 @@
     place(
       dy: 0.1em,
       circle(
-        fill: gradient.radial(self.colors.primary-lightest, self.colors.primary-darker, focal-center: (30%, 30%)),
+        fill: gradient.radial(self.colors.primary.lighten(100%), self.colors.primary.darken(40%), focal-center: (30%, 30%)),
         radius: 0.25em,
       ),
     ),
@@ -245,12 +244,12 @@
   })
   self.seu-navigation = self => {
     grid(
-      align: center+  horizon,
+      align: center + horizon,
       columns: (1fr, auto, auto),
       rows: 1.8em,
-      components.cell(fill: self.colors.primary-darkest, seu-nav-bar(self: self)),
+      components.cell(fill: self.colors.neutral-darkest, seu-nav-bar(self: self)),
       block(fill: self.colors.primary, inset: 4pt, image("assets/seu_title.png", height: 100%)),
-      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_logo.png", height:  100%)), // !TODO - inset
+      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_logo.png", height: 100%)),
     )
   }
   self.seu-display-current-section = display-current-section
@@ -264,14 +263,13 @@
       outset: 0mm,
       fill: fill,
       stroke: none,
-      align(horizon, text(fill: white, it)),
+      align(horizon, text(fill: self.colors.neutral-lightest, it)),
     )
-    show: block.with(width: 100%, height: auto, fill: self.colors.secondary)
     grid(
       columns: footer-columns,
       rows: (1.5em, auto),
-      cell(fill: self.colors.primary-darkest, utils.call-or-display(self, footer-a)),
-      cell(fill: self.colors.primary-darkest, utils.call-or-display(self, footer-b)),
+      cell(fill: self.colors.neutral-darkest, utils.call-or-display(self, footer-a)),
+      cell(fill: self.colors.neutral-darkest, utils.call-or-display(self, footer-b)),
       cell(fill: self.colors.primary, utils.call-or-display(self, footer-c)),
       cell(fill: self.colors.primary, utils.call-or-display(self, footer-d)),
     )
@@ -281,8 +279,8 @@
       block(
         width: 100%,
         height: 1.8em,
-        fill: gradient.linear(self.colors.primary, self.colors.primary-darkest),
-        place(left + horizon, text(fill: white, weight: "bold", size: 1.3em, self.seu-title), dx: 1.5em),
+        fill: gradient.linear(self.colors.primary, self.colors.neutral-darkest),
+        place(left + horizon, text(fill: self.colors.neutral-lightest, weight: "bold", size: 1.3em, self.seu-title), dx: 1.5em),
       )
     }
   }
@@ -333,15 +331,15 @@
       // height: 1.5em,
       radius: (top: 6pt),
       inset: (top: 0.4em, bottom: 0.3em, left: 0.5em, right: 0.5em),
-      text(fill: white, weight: "bold", title),
+      text(fill: self.colors.neutral-lightest, weight: "bold", title),
     ),
       rect(
-        fill: gradient.linear(self.colors.primary-dark, self.colors.primary-lightest, angle: 90deg),
+        fill: gradient.linear(self.colors.primary-dark, self.colors.primary.lighten(90%), angle: 90deg),
         width: 100%,
         height: 4pt,
       ),
       block(
-        fill: self.colors.primary-lightest,
+        fill: self.colors.primary.lighten(90%),
         width: 100%,
         radius: (bottom: 6pt),
         inset: (top: 0.4em, bottom: 0.5em, left: 0.5em, right: 0.5em),
@@ -355,14 +353,13 @@
     set heading(outlined: false)
     set list(marker: self.seu-knob-marker)
 
-    // show strong: set text(fill: black, weight: "bold")
-    show strong: it => text(fill: black, weight: "bold", it)
+    show strong: it => text(weight: "bold", it)
 
     show figure.caption: set text(size: 0.6em)
+    show footnote.entry: set text(size: 0.6em)
 
-    show footnote.entry: set text(size: .6em)
     show: show-cn-fakebold
-    // show: zh-cn
+
     set text(lang: "zh")
     show figure.where(kind: table): set figure.caption(position: top)
 
