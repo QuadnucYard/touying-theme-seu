@@ -248,8 +248,8 @@
       columns: (1fr, auto, auto),
       rows: 1.8em,
       components.cell(fill: self.colors.neutral-darkest, seu-nav-bar(self: self)),
-      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_title.png", height: 100%)),
-      block(fill: self.colors.primary, inset: 4pt, image("assets/seu_logo.png", height: 100%)),
+      block(fill: self.colors.primary, inset: 4pt, image("assets/seu-title-bl-white-embed-min.svg", height: 100%)),
+      block(fill: self.colors.primary, inset: 4pt, image("assets/seu-logo-min.svg", height: 100%)),
     )
   }
   self.seu-display-current-section = display-current-section
@@ -306,7 +306,7 @@
     header-ascent: 0em,
     footer-descent: 0em,
     margin: (top: 4em, bottom: 1.25em, x: 2.5em),
-    background: image("assets/seu_background.png", fit: "stretch", width: 100%, height: 100%),
+    background: place(center + horizon, dx: 50%, dy: 5%, image("assets/seu-background-min.svg", width: 75%)),
   )
   // register methods
   self.methods.slide = slide
