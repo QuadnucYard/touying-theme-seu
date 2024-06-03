@@ -86,6 +86,7 @@
     title: title,
     setting: body => {
       show: args.named().at("setting", default: body => body)
+      // align(center + horizon, block(body))
       align(horizon, body)
     },
     ..args.pos(),
@@ -93,7 +94,6 @@
 }
 
 #let title-slide(self: none, ..args) = {
-  // self = utils.empty-page(self)
   let info = self.info + args.named()
   info.authors = {
     let authors = if "authors" in info {
@@ -248,8 +248,8 @@
       columns: (1fr, auto, auto),
       rows: 1.8em,
       components.cell(fill: self.colors.neutral-darkest, seu-nav-bar(self: self)),
-      block(fill: self.colors.primary, inset: 4pt, image("assets/seu-title-bl-white-embed-min.svg", height: 100%)),
-      block(fill: self.colors.primary, inset: 4pt, image("assets/seu-logo-min.svg", height: 100%)),
+      block(fill: self.colors.primary, inset: 0.2em, image("assets/seu-title-bl-white-embed-min.svg", height: 100%)),
+      block(fill: self.colors.primary, inset: 0.1em, image("assets/seu-logo-min.svg", height: 100%)),
     )
   }
   self.seu-display-current-section = display-current-section
@@ -328,8 +328,7 @@
       block(
       fill: self.colors.primary-dark,
       width: 100%,
-      // height: 1.5em,
-      radius: (top: 6pt),
+      radius: (top: 0.4em),
       inset: (top: 0.4em, bottom: 0.3em, left: 0.5em, right: 0.5em),
       text(fill: self.colors.neutral-lightest, weight: "bold", title),
     ),
@@ -341,19 +340,20 @@
       block(
         fill: self.colors.primary.lighten(90%),
         width: 100%,
-        radius: (bottom: 6pt),
+        radius: (bottom: 0.4em),
         inset: (top: 0.4em, bottom: 0.5em, left: 0.5em, right: 0.5em),
         it,
       ),
     )
   }
 
-  self.methods.init = (self: none, body) => {
-    set text(size: 22pt, font: ("Helvetica", "SimHei"))
+  self.methods.init = (self: none, text-size: 22pt, body) => {
+    set text(size: text-size, font: ("Helvetica", "SimHei"))
     set heading(outlined: false)
     set list(marker: self.seu-knob-marker)
 
     show strong: it => text(weight: "bold", it)
+    set par(justify: true)
 
     show figure.caption: set text(size: 0.6em)
     show footnote.entry: set text(size: 0.6em)
