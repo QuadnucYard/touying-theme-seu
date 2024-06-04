@@ -175,7 +175,7 @@
     if title != none {
       block(
         fill: self.colors.tertiary,
-        inset: (top: 0.7em, bottom: 0.7em, left: 3em, right: 3em),
+        inset: (x: 3em, y: 0.7em),
         radius: 0.5em,
         text(size: 1.5em, fill: self.colors.neutral-lightest, title),
       )
@@ -226,7 +226,11 @@
     place(
       dy: 0.1em,
       circle(
-        fill: gradient.radial(self.colors.primary.lighten(100%), self.colors.primary.darken(40%), focal-center: (30%, 30%)),
+        fill: gradient.radial(
+          self.colors.primary.lighten(100%),
+          self.colors.primary.darken(40%),
+          focal-center: (30%, 30%),
+        ),
         radius: 0.25em,
       ),
     ),
@@ -259,15 +263,15 @@
     let cell(fill: none, it) = rect(
       width: 100%,
       height: 100%,
-      inset: 1mm,
-      outset: 0mm,
+      inset: 1pt,
+      outset: 0pt,
       fill: fill,
       stroke: none,
       align(horizon, text(fill: self.colors.neutral-lightest, it)),
     )
     grid(
       columns: footer-columns,
-      rows: (1.5em, auto),
+      rows: 1.5em,
       cell(fill: self.colors.neutral-darkest, utils.call-or-display(self, footer-a)),
       cell(fill: self.colors.neutral-darkest, utils.call-or-display(self, footer-b)),
       cell(fill: self.colors.primary, utils.call-or-display(self, footer-c)),
@@ -280,7 +284,11 @@
         width: 100%,
         height: 1.8em,
         fill: gradient.linear(self.colors.primary, self.colors.neutral-darkest),
-        place(left + horizon, text(fill: self.colors.neutral-lightest, weight: "bold", size: 1.3em, self.seu-title), dx: 1.5em),
+        place(
+          left + horizon,
+          text(fill: self.colors.neutral-lightest, weight: "bold", size: 1.3em, self.seu-title),
+          dx: 1.5em,
+        ),
       )
     }
   }
@@ -295,7 +303,7 @@
   }
   let footer(self) = {
     set text(size: .5em)
-    set align(center + bottom)
+    set align(center + horizon)
     utils.call-or-display(self, self.seu-footer)
   }
 
@@ -305,7 +313,7 @@
     footer: footer,
     header-ascent: 0em,
     footer-descent: 0em,
-    margin: (top: 4em, bottom: 1.25em, x: 2.5em),
+    margin: (top: 4em, bottom: 0.7em, x: 2.5em),
     background: place(center + horizon, dx: 50%, dy: 5%, image("assets/seu-background-min.svg", width: 75%)),
   )
   // register methods
@@ -326,12 +334,12 @@
       columns: 1,
       row-gutter: 0pt,
       block(
-      fill: self.colors.primary-dark,
-      width: 100%,
-      radius: (top: 0.4em),
-      inset: (top: 0.4em, bottom: 0.3em, left: 0.5em, right: 0.5em),
-      text(fill: self.colors.neutral-lightest, weight: "bold", title),
-    ),
+        fill: self.colors.primary-dark,
+        width: 100%,
+        radius: (top: 0.4em),
+        inset: (top: 0.4em, bottom: 0.3em, x: 0.5em),
+        text(fill: self.colors.neutral-lightest, weight: "bold", title),
+      ),
       rect(
         fill: gradient.linear(self.colors.primary-dark, self.colors.primary.lighten(90%), angle: 90deg),
         width: 100%,
@@ -341,7 +349,7 @@
         fill: self.colors.primary.lighten(90%),
         width: 100%,
         radius: (bottom: 0.4em),
-        inset: (top: 0.4em, bottom: 0.5em, left: 0.5em, right: 0.5em),
+        inset: (top: 0.4em, rest: 0.5em),
         it,
       ),
     )
@@ -349,6 +357,7 @@
 
   self.methods.init = (self: none, text-size: 22pt, body) => {
     set text(size: text-size, font: ("Helvetica", "SimHei"))
+    set block(spacing: 0.8em)
     set heading(outlined: false)
     set list(marker: self.seu-knob-marker)
 
