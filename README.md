@@ -1,12 +1,20 @@
-# 东南大学幻灯片模板（typst）
+# Touying Slide Theme for Southeast University
 
-基于 [Touying](https://touying-typ.github.io/touying/zh/) 的 university 风格实现的东南大学幻灯片模板（typst）。
+[[中文]](./README.zh.md)
 
-风格模仿自 <https://github.com/TouchFishPioneer/SEU-Beamer-Slide>，在 `examples/beamer-sms.typ` 中提供迁移至 typst 效果示例。
+SEU-styled slide themes and templates based on [Touying](https://touying-typ.github.io/touying/zh/)。
 
-欢迎投稿更多模板！
+## Themes
 
-## 友情链接
+So far, only a theme inspired by <https://github.com/TouchFishPioneer/SEU-Beamer-Slide> is provided. The example can be found in `examples/beamer-sms.typ`.
+
+Welcome to contribute more templates!
+
+## License
+
+Licensed under the [MIT License](LICENSE).
+
+## See also
 
 - seu-thesis-typst by [TideDra](https://github.com/TideDra)：<https://github.com/TideDra/seu-thesis-typst>
 - SEU-Typst-Template by [csimide](https://github.com/csimide)：<https://github.com/csimide/SEU-Typst-Template>
